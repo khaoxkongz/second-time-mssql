@@ -1,0 +1,24 @@
+# DEFAULT NO PERSISTENT VOLUME
+# docker run --rm --name health-id-mssql -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=Onewkub@123' -p 1433:1433 -d mcr.microsoft.com/mssql/server
+
+# PERSISTENT VOLUME
+# docker run --rm --name health-id-mssql -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=Onewkub@123' -p 1433:1433 -v health-id-volume:/var/opt/mssql -d mcr.microsoft.com/mssql/server
+
+# EXECUTE COMMAND INSIDE CONTAINER MSSQL
+# docker exec -it health-id-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Onewkub@123
+
+services:
+  health-id-db:
+    image: mcr.microsoft.com/mssql/server
+    container_name: health-id-mssql
+    environment:
+      ACCEPT_EULA: 'Y'
+      SA_PASSWORD: 'Onewkub@123'
+      MSSQL_PID: 'Express'
+    ports:
+      - '1433:1433'
+    volumes:
+      - health-id-volume:/var/opt/mssql
+
+volumes:
+  health-id-volume:

@@ -1,14 +1,14 @@
 const constUtilities = require('../utils/constants.util');
 
-function newServiceSelectorLocation(selectorLocationRepo) {
-  return new ServiceSelectorLocation(selectorLocationRepo);
+function newServiceSelectorLocation(repoSelectorLocation) {
+  return new ServiceSelectorLocation(repoSelectorLocation);
 }
 
 class ServiceSelectorLocation {
   _repoSelectorLocation = null;
 
-  constructor(selectorLocationRepo) {
-    this._repoSelectorLocation = selectorLocationRepo;
+  constructor(repoSelectorLocation) {
+    this._repoSelectorLocation = repoSelectorLocation;
   }
 
   async getAllProviceHealth(body) {
@@ -16,7 +16,7 @@ class ServiceSelectorLocation {
     try {
       const data = `(${areas ? areas.map((area) => `N'${area}'`).join(', ') : ''})`;
       console.log(data);
-      // const result = await this._selectorLocationRepo.getAllProvinceHealth(data);
+      // const result = await this._repoSelectorLocation.getAllProvinceHealth(data);
       return data;
     } catch (error) {
       console.error(error);
@@ -28,7 +28,7 @@ class ServiceSelectorLocation {
     try {
       const data = `(${provinces ? provinces.map((province) => `N'${province}'`).join(', ') : ''})`;
       console.log(data);
-      // const result = await this._selectorLocationRepo.getAllDistrictHealth(data);
+      // const result = await this._repoSelectorLocation.getAllDistrictHealth(data);
       return data;
     } catch (error) {
       console.error(error);
@@ -40,7 +40,7 @@ class ServiceSelectorLocation {
     try {
       const data = `(${districts ? districts.map((district) => `N'${district}'`).join(', ') : ''})`;
       console.log(data);
-      // const result = await this._selectorLocationRepo.getAllSubDistrictHealth(data);
+      // const result = await this._repoSelectorLocation.getAllSubDistrictHealth(data);
       return data;
     } catch (error) {
       console.error(error);
@@ -66,10 +66,10 @@ class ServiceSelectorLocation {
     const dataProvinces = `(${provinces ? provinces.map((province) => `N'${province}'`).join(', ') : ''})`;
     const dataDistricts = `(${districts ? districts.map((district) => `N'${district}'`).join(', ') : ''})`;
 
-    const conditionClause = conditions.length > 0 ? `WHERE ${conditions.join(' OR ')}` : '';
+    const conditionClause = conditions.length > 0 ? `${conditions.join(' OR ')}` : '';
 
     try {
-      // const result = await this._selectorLocationRepo.getAllDatas(conditionClause, {
+      // const result = await this._repoSelectorLocation.getAllDatas(conditionClause, {
       //   areas: dataAreas,
       //   provinces: dataProvinces,
       //   districts: dataDistricts,

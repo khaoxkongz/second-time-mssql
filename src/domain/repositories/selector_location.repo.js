@@ -61,7 +61,7 @@ class RepositorySelectorLocation {
       SELECT DISTINCT ${constUtilities.PROVINCE_HEALTH_COLUMN},
       ${constUtilities.DISTRICT_HEALTH_COLUMN}, ${constUtilities.SUBDISTRICT_HEALTH_COLUMN}
       FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
-      ${conditions}
+      WHERE ${conditions}
     `;
 
     try {

@@ -12,11 +12,7 @@ class RepositorySelectorLocation {
   }
 
   async getAllProvinceHealth(areas) {
-    const query = `
-      SELECT DISTINCT ${constUtilities.PROVINCE_HEALTH_COLUMN}
-      FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
-      WHERE ${constUtilities.SERVICE_AREA_HEALTH_COLUMN} IN (${areas})
-    `;
+    const query = sqlQueryGetAllProvinceHealth(areas);
 
     try {
       const result = await this._databaseInstance.request().query(query);
@@ -27,11 +23,7 @@ class RepositorySelectorLocation {
   }
 
   async getAllDistrictHealth(provinces) {
-    const query = `
-      SELECT DISTINCT ${constUtilities.DISTRICT_HEALTH_COLUMN}
-      FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
-      WHERE ${constUtilities.PROVINCE_HEALTH_COLUMN} IN (${provinces})
-    `;
+    const query = sqlQueryGetAllDistrictHealth(provinces);
 
     try {
       const result = await this._databaseInstance.request().query(query);
@@ -42,11 +34,7 @@ class RepositorySelectorLocation {
   }
 
   async getAllSubDistrictHealth(districts) {
-    const query = `
-      SELECT DISTINCT ${constUtilities.SUBDISTRICT_HEALTH_COLUMN}
-      FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
-      WHERE ${constUtilities.DISTRICT_HEALTH_COLUMN} IN (${districts})
-    `;
+    const query = sqlQueryGetAllSubDistrictHealth(districts);
 
     try {
       const result = await this._databaseInstance.request().query(query);
@@ -57,12 +45,7 @@ class RepositorySelectorLocation {
   }
 
   async getAllDatas(conditions, { areas, provinces, districts }) {
-    const query = `
-      SELECT DISTINCT ${constUtilities.PROVINCE_HEALTH_COLUMN},
-      ${constUtilities.DISTRICT_HEALTH_COLUMN}, ${constUtilities.SUBDISTRICT_HEALTH_COLUMN}
-      FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
-      WHERE ${conditions}
-    `;
+    const query = sqlQueryGetAllDatas(conditions);
 
     try {
       const result = await this._databaseInstance
@@ -76,6 +59,39 @@ class RepositorySelectorLocation {
       console.error(error);
     }
   }
+}
+
+function sqlQueryGetAllProvinceHealth(areas) {
+  return `
+    SELECT DISTINCT ${constUtilities.PROVINCE_HEALTH_COLUMN}
+    FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
+    WHERE ${constUtilities.SERVICE_AREA_HEALTH_COLUMN} IN (${areas})
+  `;
+}
+
+function sqlQueryGetAllDistrictHealth(provinces) {
+  return `
+    SELECT DISTINCT ${constUtilities.DISTRICT_HEALTH_COLUMN}
+    FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
+    WHERE ${constUtilities.PROVINCE_HEALTH_COLUMN} IN (${provinces})
+  `;
+}
+
+function sqlQueryGetAllSubDistrictHealth(districts) {
+  return `
+    SELECT DISTINCT ${constUtilities.SUBDISTRICT_HEALTH_COLUMN}
+    FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
+    WHERE ${constUtilities.DISTRICT_HEALTH_COLUMN} IN (${districts})
+  `;
+}
+
+function sqlQueryGetAllDatas(conditions) {
+  return `
+    SELECT DISTINCT ${constUtilities.PROVINCE_HEALTH_COLUMN},
+    ${constUtilities.DISTRICT_HEALTH_COLUMN}, ${constUtilities.SUBDISTRICT_HEALTH_COLUMN}
+    FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
+    WHERE ${conditions}
+  `;
 }
 
 module.exports = { newRepositorySelectorLocation };

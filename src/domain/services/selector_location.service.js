@@ -13,11 +13,11 @@ class ServiceSelectorLocation {
 
   async getAllProviceHealth(body) {
     const { areas } = body;
+    const formattedAreasSQL = `(${areas ? areas.map((area) => `N'${area}'`).join(', ') : ''})`;
+
     try {
-      const data = `(${areas ? areas.map((area) => `N'${area}'`).join(', ') : ''})`;
-      console.log(data);
-      // const result = await this._repoSelectorLocation.getAllProvinceHealth(data);
-      return data;
+      // const result = await this._repoSelectorLocation.getAllProvinceHealth(formattedAreasSQL);
+      return formattedAreasSQL;
     } catch (error) {
       console.error(error);
     }
@@ -25,11 +25,11 @@ class ServiceSelectorLocation {
 
   async getAllDistrictHealth(body) {
     const { provinces } = body;
+    const formattedProvincesSQL = `(${provinces ? provinces.map((province) => `N'${province}'`).join(', ') : ''})`;
+
     try {
-      const data = `(${provinces ? provinces.map((province) => `N'${province}'`).join(', ') : ''})`;
-      console.log(data);
-      // const result = await this._repoSelectorLocation.getAllDistrictHealth(data);
-      return data;
+      // const result = await this._repoSelectorLocation.getAllDistrictHealth(formattedProvincesSQL);
+      return formattedProvincesSQL;
     } catch (error) {
       console.error(error);
     }
@@ -37,11 +37,11 @@ class ServiceSelectorLocation {
 
   async getAllSubDistrictHealth(body) {
     const { districts } = body;
+    const formattedDistrictsSQL = `(${districts ? districts.map((district) => `N'${district}'`).join(', ') : ''})`;
+
     try {
-      const data = `(${districts ? districts.map((district) => `N'${district}'`).join(', ') : ''})`;
-      console.log(data);
-      // const result = await this._repoSelectorLocation.getAllSubDistrictHealth(data);
-      return data;
+      // const result = await this._repoSelectorLocation.getAllSubDistrictHealth(formattedDistrictsSQL);
+      return formattedDistrictsSQL;
     } catch (error) {
       console.error(error);
     }
@@ -62,25 +62,22 @@ class ServiceSelectorLocation {
       conditions.push(`${constUtilities.DISTRICT_HEALTH_COLUMN} IN @districts`);
     }
 
-    const dataAreas = `(${areas ? areas.map((area) => `N'${area}'`).join(', ') : ''})`;
-    const dataProvinces = `(${provinces ? provinces.map((province) => `N'${province}'`).join(', ') : ''})`;
-    const dataDistricts = `(${districts ? districts.map((district) => `N'${district}'`).join(', ') : ''})`;
+    const formattedAreasSQL = `(${areas ? areas.map((area) => `N'${area}'`).join(', ') : ''})`;
+    const formattedProvincesSQL = `(${provinces ? provinces.map((province) => `N'${province}'`).join(', ') : ''})`;
+    const formattedDistrictsSQL = `(${districts ? districts.map((district) => `N'${district}'`).join(', ') : ''})`;
 
     const conditionClause = conditions.length > 0 ? `${conditions.join(' OR ')}` : '';
 
+    const argSelectorLocation = {
+      areas: formattedAreasSQL,
+      provinces: formattedProvincesSQL,
+      districts: formattedDistrictsSQL,
+    };
+
+    const result = { conditions: conditionClause, ...argSelectorLocation };
+
     try {
-      // const result = await this._repoSelectorLocation.getAllDatas(conditionClause, {
-      //   areas: dataAreas,
-      //   provinces: dataProvinces,
-      //   districts: dataDistricts,
-      // });
-      const result = {
-        conditions: conditionClause,
-        areas: dataAreas,
-        provinces: dataProvinces,
-        districts: dataDistricts,
-      };
-      console.log(result);
+      // const result = await this._repoSelectorLocation.getAllDatas(conditionClause, argSelectorLocation);
       return result;
     } catch (error) {
       console.error(error);

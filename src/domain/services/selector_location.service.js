@@ -62,11 +62,19 @@ class ServiceSelectorLocation {
 }
 
 function formattedStringAreasSql(areas) {
+  let formattedAreasSQL = '';
   if (areas === null || areas === undefined || areas.length === 0) {
     return '';
   }
 
-  return areas.map((area) => `N'${area}'`).join(', ');
+  for (let i = 0; i < areas.length; i++) {
+    formattedAreasSQL += `N'${areas[i]}'`;
+    if (i !== areas.length - 1) {
+      formattedAreasSQL += ', ';
+    }
+  }
+
+  return `(${formattedAreasSQL})`;
 }
 
 function formattedStringProvincesSql(provinces) {
@@ -74,7 +82,7 @@ function formattedStringProvincesSql(provinces) {
     return '';
   }
 
-  return provinces.map((province) => `N'${province}'`).join(', ');
+  return `(${provinces.map((province) => `N'${province}'`).join(', ')})`;
 }
 
 function formattedStringDistrictsSql(districts) {
@@ -82,7 +90,7 @@ function formattedStringDistrictsSql(districts) {
     return '';
   }
 
-  return districts.map((district) => `N'${district}'`).join(', ');
+  return `(${districts.map((district) => `N'${district}'`).join(', ')})`;
 }
 
 function formattedConditionAreas() {
@@ -112,15 +120,15 @@ function getConditionsAndArguments(areas, provinces, districts) {
   const conditionProvinces = formattedConditionProvinces();
   const conditionDistricts = formattedConditionDistricts();
 
-  if (areas && areas.length > 0) {
+  if (areas !== null && areas !== undefined && areas.length > 0) {
     conditions.push(conditionAreas);
   }
 
-  if (provinces && provinces.length > 0) {
+  if (provinces !== null && provinces !== undefined && provinces.length > 0) {
     conditions.push(conditionProvinces);
   }
 
-  if (districts && districts.length > 0) {
+  if (districts !== null && districts !== undefined && districts.length > 0) {
     conditions.push(conditionDistricts);
   }
 

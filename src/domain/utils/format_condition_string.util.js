@@ -9,7 +9,14 @@ function formattedConditionClause(conditions) {
     return '';
   }
 
-  return conditions.join(' OR ');
+  let conditionClause = '';
+  for (let i = 0; i < conditions.length; i++) {
+    conditionClause += conditions[i];
+    if (i !== conditions.length - 1) {
+      conditionClause += ' OR ';
+    }
+  }
+  return conditionClause;
 }
 
 function getConditionsAndArguments(areas, provinces, districts) {

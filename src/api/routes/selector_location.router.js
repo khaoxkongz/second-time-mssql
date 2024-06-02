@@ -8,7 +8,7 @@ class RouterSelectorLocation extends Router {
   constructor(ctrlSelectorLocation) {
     super();
 
-    this._router.get('/', ctrlSelectorLocation.getAllDatasByLocation.bind(ctrlSelectorLocation));
+    this._router.get('/', ctrlSelectorLocation.getAllDatas.bind(ctrlSelectorLocation));
   }
 }
 

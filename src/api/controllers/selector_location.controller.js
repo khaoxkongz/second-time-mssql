@@ -1,14 +1,14 @@
 const response = require('../response');
 
-function newControllerSelectorLocation(selectorLocationService) {
-  return new ControllerSelectorLocation(selectorLocationService);
+function newControllerSelectorLocation(serviceSelectorLocation) {
+  return new ControllerSelectorLocation(serviceSelectorLocation);
 }
 
 class ControllerSelectorLocation {
   _serviceSelectorLocation = null;
 
-  constructor(selectorLocationService) {
-    this._serviceSelectorLocation = selectorLocationService;
+  constructor(serviceSelectorLocation) {
+    this._serviceSelectorLocation = serviceSelectorLocation;
   }
 
   async getAllDatasByLocation(req, res) {

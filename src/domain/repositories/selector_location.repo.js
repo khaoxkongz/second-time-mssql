@@ -12,10 +12,11 @@ class RepositorySelectorLocation {
   }
 
   async getAllProvinceHealth(areas) {
-    const query = sqlQueryGetAllProvinceHealth(areas);
+    const query = sqlQueryGetAllProvinceHealth();
+    const argCondition = { query, input: { name: 'areas', type: 'VarChar(50)', value: areas } };
 
     try {
-      const result = await this._databaseInstance.request().query(query);
+      const result = await executeQuery(this._databaseInstance, argCondition);
       return result.recordset;
     } catch (error) {
       console.error(error);
@@ -23,10 +24,11 @@ class RepositorySelectorLocation {
   }
 
   async getAllDistrictHealth(provinces) {
-    const query = sqlQueryGetAllDistrictHealth(provinces);
+    const query = sqlQueryGetAllDistrictHealth();
+    const argCondition = { query, input: { name: 'provinces', type: 'VarChar(50)', value: provinces } };
 
     try {
-      const result = await this._databaseInstance.request().query(query);
+      const result = await executeQuery(this._databaseInstance, argCondition);
       return result.recordset;
     } catch (error) {
       console.error(error);
@@ -34,10 +36,11 @@ class RepositorySelectorLocation {
   }
 
   async getAllSubDistrictHealth(districts) {
-    const query = sqlQueryGetAllSubDistrictHealth(districts);
+    const query = sqlQueryGetAllSubDistrictHealth();
+    const argCondition = { query, input: { name: 'districts', type: 'VarChar(50)', value: districts } };
 
     try {
-      const result = await this._databaseInstance.request().query(query);
+      const result = await executeQuery(this._databaseInstance, argCondition);
       return result.recordset;
     } catch (error) {
       console.error(error);
@@ -50,9 +53,9 @@ class RepositorySelectorLocation {
     try {
       const result = await this._databaseInstance
         .request()
-        .input('areas', sql.VarChar(sql.MAX), areas ? areas : null)
-        .input('provinces', sql.VarChar(sql.MAX), provinces ? provinces : null)
-        .input('districts', sql.VarChar(sql.MAX), districts ? districts : null)
+        .input('areas', 'VarChar(50)', areas ? areas : null)
+        .input('provinces', 'VarChar(50)', provinces ? provinces : null)
+        .input('districts', 'VarChar(50)', districts ? districts : null)
         .query(query);
       return result.recordset;
     } catch (error) {
@@ -61,27 +64,27 @@ class RepositorySelectorLocation {
   }
 }
 
-function sqlQueryGetAllProvinceHealth(areas) {
+function sqlQueryGetAllProvinceHealth() {
   return `
     SELECT DISTINCT ${constUtilities.PROVINCE_HEALTH_COLUMN}
     FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
-    WHERE ${constUtilities.SERVICE_AREA_HEALTH_COLUMN} IN (${areas})
+    WHERE ${constUtilities.SERVICE_AREA_HEALTH_COLUMN} IN @areas
   `;
 }
 
-function sqlQueryGetAllDistrictHealth(provinces) {
+function sqlQueryGetAllDistrictHealth() {
   return `
     SELECT DISTINCT ${constUtilities.DISTRICT_HEALTH_COLUMN}
     FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
-    WHERE ${constUtilities.PROVINCE_HEALTH_COLUMN} IN (${provinces})
+    WHERE ${constUtilities.PROVINCE_HEALTH_COLUMN} IN @provinces
   `;
 }
 
-function sqlQueryGetAllSubDistrictHealth(districts) {
+function sqlQueryGetAllSubDistrictHealth() {
   return `
     SELECT DISTINCT ${constUtilities.SUBDISTRICT_HEALTH_COLUMN}
     FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
-    WHERE ${constUtilities.DISTRICT_HEALTH_COLUMN} IN (${districts})
+    WHERE ${constUtilities.DISTRICT_HEALTH_COLUMN} IN @districts
   `;
 }
 
@@ -92,6 +95,13 @@ function sqlQueryGetAllDatas(conditions) {
     FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
     WHERE ${conditions}
   `;
+}
+
+async function executeQuery(databaseInstance, { query, input }) {
+  if (input) {
+    return await databaseInstance.request().input(input.name, input.type, input.value).query(query);
+  }
+  return await databaseInstance.request().query(query);
 }
 
 module.exports = { newRepositorySelectorLocation };

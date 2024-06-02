@@ -1,4 +1,7 @@
-const constUtilities = require('../utils/constants.util');
+const { formattedStringAreasSql } = require('../utils/format_query_string.util');
+const { formattedStringProvincesSql, formattedStringDistrictsSql } = require('../utils/format_query_string.util');
+
+const { getConditionsAndArguments } = require('../utils/format_condition_string.util');
 
 function newServiceSelectorLocation(repoSelectorLocation) {
   return new ServiceSelectorLocation(repoSelectorLocation);
@@ -50,8 +53,6 @@ class ServiceSelectorLocation {
   async getAllDatas({ areas, provinces, districts }) {
     const { conditionClause, argSelectorLocation } = getConditionsAndArguments(areas, provinces, districts);
 
-    // const result = { conditions: conditionClause, ...argSelectorLocation };
-
     try {
       const result = await this._repoSelectorLocation.getAllDatas(conditionClause, argSelectorLocation);
       return result;
@@ -59,92 +60,6 @@ class ServiceSelectorLocation {
       console.error(error);
     }
   }
-}
-
-function formattedStringAreasSql(areas) {
-  let formattedAreasSQL = '';
-  if (areas === null || areas === undefined || areas.length === 0) {
-    return '';
-  }
-
-  for (let i = 0; i < areas.length; i++) {
-    formattedAreasSQL += `N'${areas[i]}'`;
-    if (i !== areas.length - 1) {
-      formattedAreasSQL += ', ';
-    }
-  }
-
-  return `(${formattedAreasSQL})`;
-}
-
-function formattedStringProvincesSql(provinces) {
-  if (provinces === null || provinces === undefined || provinces.length === 0) {
-    return '';
-  }
-
-  return `(${provinces.map((province) => `N'${province}'`).join(', ')})`;
-}
-
-function formattedStringDistrictsSql(districts) {
-  if (districts === null || districts === undefined || districts.length === 0) {
-    return '';
-  }
-
-  return `(${districts.map((district) => `N'${district}'`).join(', ')})`;
-}
-
-function formattedConditionAreas() {
-  return `${constUtilities.SERVICE_AREA_HEALTH_COLUMN} IN @areas`;
-}
-
-function formattedConditionProvinces() {
-  return `${constUtilities.PROVINCE_HEALTH_COLUMN} IN @provinces`;
-}
-
-function formattedConditionDistricts() {
-  return `${constUtilities.DISTRICT_HEALTH_COLUMN} IN @districts`;
-}
-
-function formattedConditionClause(conditions) {
-  if (conditions === null || conditions === undefined || conditions.length === 0) {
-    return '';
-  }
-
-  return conditions.join(' OR ');
-}
-
-function getConditionsAndArguments(areas, provinces, districts) {
-  const conditions = [];
-
-  const conditionAreas = formattedConditionAreas();
-  const conditionProvinces = formattedConditionProvinces();
-  const conditionDistricts = formattedConditionDistricts();
-
-  if (areas !== null && areas !== undefined && areas.length > 0) {
-    conditions.push(conditionAreas);
-  }
-
-  if (provinces !== null && provinces !== undefined && provinces.length > 0) {
-    conditions.push(conditionProvinces);
-  }
-
-  if (districts !== null && districts !== undefined && districts.length > 0) {
-    conditions.push(conditionDistricts);
-  }
-
-  const formattedAreasSQL = formattedStringAreasSql(areas);
-  const formattedProvincesSQL = formattedStringProvincesSql(provinces);
-  const formattedDistrictsSQL = formattedStringDistrictsSql(districts);
-
-  const conditionClause = formattedConditionClause(conditions);
-
-  const argSelectorLocation = {
-    areas: formattedAreasSQL,
-    provinces: formattedProvincesSQL,
-    districts: formattedDistrictsSQL,
-  };
-
-  return { conditionClause, argSelectorLocation };
 }
 
 module.exports = { newServiceSelectorLocation };

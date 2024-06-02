@@ -45,4 +45,17 @@ class DatabaseContext {
   }
 }
 
-module.exports = { newDatabaseContext };
+async function executeQuery(databaseInstance, { query, inputs }) {
+  try {
+    const request = await databaseInstance.request();
+    if (inputs !== undefined && inputs !== null && inputs.length > 0) {
+      inputs.forEach((input) => request.input(input.name, input.type, input.value));
+    }
+    const result = await request.query(query);
+    return result.recordsets;
+  } catch (error) {
+    console.log('Error executing query: ', error);
+  }
+}
+
+module.exports = { newDatabaseContext, executeQuery };

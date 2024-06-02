@@ -85,4 +85,4 @@ class ServiceSelectorLocation {
   }
 }
 
-module.exports = { newSelectorLocationService: newServiceSelectorLocation };
+module.exports = { newServiceSelectorLocation };

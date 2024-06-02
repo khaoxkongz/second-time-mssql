@@ -78,4 +78,4 @@ class RepositorySelectorLocation {
   }
 }
 
-module.exports = { newSelectorLocationRepository: newRepositorySelectorLocation };
+module.exports = { newRepositorySelectorLocation };

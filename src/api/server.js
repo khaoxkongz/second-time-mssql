@@ -21,7 +21,7 @@ class Server {
 
     this._databaseInstance = arg.databaseInstance;
 
-    const ctrlSelectorLocation = arg.selectorLocationCtrl;
+    const ctrlSelectorLocation = arg.ctrlSelectorLocation;
     const routerSelectorLocation = newRouterSelectorLocation(ctrlSelectorLocation);
 
     this._server.use('/api/v1/selector/location', routerSelectorLocation.router());

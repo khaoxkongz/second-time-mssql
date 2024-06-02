@@ -13,11 +13,14 @@ class RepositorySelectorLocation {
 
   async getAllProvinceHealth(areas) {
     const query = sqlQueryGetAllProvinceHealth();
-    const argCondition = { query, input: { name: 'areas', type: 'VarChar(50)', value: areas } };
+    const inputAreas = { name: 'areas', type: 'VarChar(50)', value: areas };
+    const argCondition = { query, inputs: [inputAreas] };
+
+    const result = { argCondition };
 
     try {
-      const result = await executeQuery(this._databaseInstance, argCondition);
-      return result.recordset;
+      // const result = await executeQuery(this._databaseInstance, argCondition);
+      return result;
     } catch (error) {
       console.error(error);
     }
@@ -25,11 +28,14 @@ class RepositorySelectorLocation {
 
   async getAllDistrictHealth(provinces) {
     const query = sqlQueryGetAllDistrictHealth();
-    const argCondition = { query, input: { name: 'provinces', type: 'VarChar(50)', value: provinces } };
+    const inputProvinces = { name: 'provinces', type: 'VarChar(50)', value: provinces };
+    const argCondition = { query, inputs: [inputProvinces] };
+
+    const result = { argCondition };
 
     try {
-      const result = await executeQuery(this._databaseInstance, argCondition);
-      return result.recordset;
+      // const result = await executeQuery(this._databaseInstance, argCondition);
+      return result;
     } catch (error) {
       console.error(error);
     }
@@ -37,11 +43,14 @@ class RepositorySelectorLocation {
 
   async getAllSubDistrictHealth(districts) {
     const query = sqlQueryGetAllSubDistrictHealth();
-    const argCondition = { query, input: { name: 'districts', type: 'VarChar(50)', value: districts } };
+    const inputDistricts = { name: 'districts', type: 'VarChar(50)', value: districts };
+    const argCondition = { query, inputs: [inputDistricts] };
+
+    const result = { argCondition };
 
     try {
-      const result = await executeQuery(this._databaseInstance, argCondition);
-      return result.recordset;
+      // const result = await executeQuery(this._databaseInstance, argCondition);
+      return result;
     } catch (error) {
       console.error(error);
     }
@@ -50,14 +59,17 @@ class RepositorySelectorLocation {
   async getAllDatas(conditions, { areas, provinces, districts }) {
     const query = sqlQueryGetAllDatas(conditions);
 
+    const inputAreas = { name: 'areas', type: 'VarChar(50)', value: areas };
+    const inputProvinces = { name: 'provinces', type: 'VarChar(50)', value: provinces };
+    const inputDistricts = { name: 'districts', type: 'VarChar(50)', value: districts };
+
+    const argCondition = { query, inputs: [inputAreas, inputProvinces, inputDistricts] };
+
+    const result = { argCondition };
+
     try {
-      const result = await this._databaseInstance
-        .request()
-        .input('areas', 'VarChar(50)', areas ? areas : null)
-        .input('provinces', 'VarChar(50)', provinces ? provinces : null)
-        .input('districts', 'VarChar(50)', districts ? districts : null)
-        .query(query);
-      return result.recordset;
+      // const result = await executeQuery(this._databaseInstance, argCondition);
+      return result;
     } catch (error) {
       console.error(error);
     }
@@ -65,43 +77,32 @@ class RepositorySelectorLocation {
 }
 
 function sqlQueryGetAllProvinceHealth() {
-  return `
-    SELECT DISTINCT ${constUtilities.PROVINCE_HEALTH_COLUMN}
-    FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
-    WHERE ${constUtilities.SERVICE_AREA_HEALTH_COLUMN} IN @areas
-  `;
+  return `SELECT DISTINCT ${constUtilities.PROVINCE_HEALTH_COLUMN} FROM ${constUtilities.DBO_HEALTH_ID_TABLE} WHERE ${constUtilities.SERVICE_AREA_HEALTH_COLUMN} IN @areas`;
 }
 
 function sqlQueryGetAllDistrictHealth() {
-  return `
-    SELECT DISTINCT ${constUtilities.DISTRICT_HEALTH_COLUMN}
-    FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
-    WHERE ${constUtilities.PROVINCE_HEALTH_COLUMN} IN @provinces
-  `;
+  return `SELECT DISTINCT ${constUtilities.DISTRICT_HEALTH_COLUMN} FROM ${constUtilities.DBO_HEALTH_ID_TABLE} WHERE ${constUtilities.PROVINCE_HEALTH_COLUMN} IN @provinces`;
 }
 
 function sqlQueryGetAllSubDistrictHealth() {
-  return `
-    SELECT DISTINCT ${constUtilities.SUBDISTRICT_HEALTH_COLUMN}
-    FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
-    WHERE ${constUtilities.DISTRICT_HEALTH_COLUMN} IN @districts
-  `;
+  return `SELECT DISTINCT ${constUtilities.SUBDISTRICT_HEALTH_COLUMN} FROM ${constUtilities.DBO_HEALTH_ID_TABLE} WHERE ${constUtilities.DISTRICT_HEALTH_COLUMN} IN @districts`;
 }
 
 function sqlQueryGetAllDatas(conditions) {
-  return `
-    SELECT DISTINCT ${constUtilities.PROVINCE_HEALTH_COLUMN},
-    ${constUtilities.DISTRICT_HEALTH_COLUMN}, ${constUtilities.SUBDISTRICT_HEALTH_COLUMN}
-    FROM ${constUtilities.DBO_HEALTH_ID_TABLE}
-    WHERE ${conditions}
-  `;
+  return `SELECT DISTINCT ${constUtilities.PROVINCE_HEALTH_COLUMN}, ${constUtilities.DISTRICT_HEALTH_COLUMN}, ${constUtilities.SUBDISTRICT_HEALTH_COLUMN} FROM ${constUtilities.DBO_HEALTH_ID_TABLE} WHERE ${conditions}`;
 }
 
-async function executeQuery(databaseInstance, { query, input }) {
-  if (input) {
-    return await databaseInstance.request().input(input.name, input.type, input.value).query(query);
+async function executeQuery(databaseInstance, { query, inputs }) {
+  try {
+    const request = await databaseInstance.request();
+    if (inputs !== undefined && inputs !== null && inputs.length > 0) {
+      inputs.forEach((input) => request.input(input.name, input.type, input.value));
+    }
+    const result = await request.query(query);
+    return result.recordsets;
+  } catch (error) {
+    console.log('Error executing query: ', error);
   }
-  return await databaseInstance.request().query(query);
 }
 
 module.exports = { newRepositorySelectorLocation };

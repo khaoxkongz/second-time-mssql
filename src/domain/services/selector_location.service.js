@@ -16,8 +16,8 @@ class ServiceSelectorLocation {
     const formattedAreasSQL = `(${areas ? areas.map((area) => `N'${area}'`).join(', ') : ''})`;
 
     try {
-      // const result = await this._repoSelectorLocation.getAllProvinceHealth(formattedAreasSQL);
-      return formattedAreasSQL;
+      const result = await this._repoSelectorLocation.getAllProvinceHealth(formattedAreasSQL);
+      return result;
     } catch (error) {
       console.error(error);
     }
@@ -28,8 +28,8 @@ class ServiceSelectorLocation {
     const formattedProvincesSQL = `(${provinces ? provinces.map((province) => `N'${province}'`).join(', ') : ''})`;
 
     try {
-      // const result = await this._repoSelectorLocation.getAllDistrictHealth(formattedProvincesSQL);
-      return formattedProvincesSQL;
+      const result = await this._repoSelectorLocation.getAllDistrictHealth(formattedProvincesSQL);
+      return result;
     } catch (error) {
       console.error(error);
     }
@@ -40,8 +40,8 @@ class ServiceSelectorLocation {
     const formattedDistrictsSQL = `(${districts ? districts.map((district) => `N'${district}'`).join(', ') : ''})`;
 
     try {
-      // const result = await this._repoSelectorLocation.getAllSubDistrictHealth(formattedDistrictsSQL);
-      return formattedDistrictsSQL;
+      const result = await this._repoSelectorLocation.getAllSubDistrictHealth(formattedDistrictsSQL);
+      return result;
     } catch (error) {
       console.error(error);
     }
@@ -74,10 +74,10 @@ class ServiceSelectorLocation {
       districts: formattedDistrictsSQL,
     };
 
-    const result = { conditions: conditionClause, ...argSelectorLocation };
+    // const result = { conditions: conditionClause, ...argSelectorLocation };
 
     try {
-      // const result = await this._repoSelectorLocation.getAllDatas(conditionClause, argSelectorLocation);
+      const result = await this._repoSelectorLocation.getAllDatas(conditionClause, argSelectorLocation);
       return result;
     } catch (error) {
       console.error(error);

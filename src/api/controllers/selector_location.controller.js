@@ -14,15 +14,15 @@ class ControllerSelectorLocation {
   async getAllDatasByLocation(req, res) {
     const { areas, provinces, districts } = req.body;
 
-    if (areas === undefined && areas === null) {
+    if (areas === undefined || areas === null) {
       return response.MissingField(res, 'areas');
     }
 
-    if (provinces === undefined && provinces === null) {
+    if (provinces === undefined || provinces === null) {
       return response.MissingField(res, 'provinces');
     }
 
-    if (districts === undefined && districts === null) {
+    if (districts === undefined || districts === null) {
       return response.MissingField(res, 'districts');
     }
 
@@ -49,15 +49,15 @@ class ControllerSelectorLocation {
   async getAllDatas(req, res) {
     const { areas, provinces, districts } = req.body;
 
-    if (areas === undefined && areas === null) {
+    if (areas === undefined || areas === null) {
       return response.MissingField(res, 'areas');
     }
 
-    if (provinces === undefined && provinces === null) {
+    if (provinces === undefined || provinces === null) {
       return response.MissingField(res, 'provinces');
     }
 
-    if (districts === undefined && districts === null) {
+    if (districts === undefined || districts === null) {
       return response.MissingField(res, 'districts');
     }
 

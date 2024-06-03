@@ -21,16 +21,12 @@ class Server {
 
     this._databaseInstance = arg.databaseInstance;
 
-    const ctrlSelectorLocation = arg.ctrlSelectorLocation;
-    const routerSelectorLocation = newRouterSelectorLocation(ctrlSelectorLocation);
-
-    this._server.use('/api/v1/selector/location', routerSelectorLocation.router());
+    this._server.use('/api/v1/selector/location', newRouterSelectorLocation(arg.ctrlSelectorLocation).router());
   }
 
   async connectDatabase() {
-    const databaseInstance = this._databaseInstance;
     try {
-      await databaseInstance.connect();
+      await this._databaseInstance.connect();
       console.log('[TASK_2] Successfully connected to database.');
     } catch (err) {
       console.error('Database Connection Failed!', err);
@@ -39,11 +35,10 @@ class Server {
   }
 
   async listenAndServe(port) {
-    const database = this._databaseInstance;
     const server = this._server.listen(port, () => console.log(`[TASK_3] Server is running on port ${port}`));
 
-    shutdown({ database, server }, 'SIGINT');
-    shutdown({ database, server }, 'SIGTERM');
+    shutdown({ database: this._databaseInstance, server }, 'SIGINT');
+    shutdown({ database: this._databaseInstance, server }, 'SIGTERM');
   }
 }
 

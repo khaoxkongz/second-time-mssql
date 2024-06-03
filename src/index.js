@@ -1,12 +1,11 @@
 require('dotenv').config();
-const { config } = require('./domain/configs/db.config');
 
 const { Server } = require('./api/server');
 const { newDatabaseContext } = require('./data/sources/mssql/mssql.database');
 const { init } = require('./init');
 
 async function main() {
-  const databaseInstance = newDatabaseContext(config);
+  const databaseInstance = newDatabaseContext();
 
   const serverInitializer = init(Server, { databaseInstance });
 

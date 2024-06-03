@@ -1,5 +1,3 @@
-// const { executeQuery } = require('../../data/sources/mssql/mssql.database');
-
 function newRepositorySelectorLocation(databaseInstance) {
   return new RepositorySelectorLocation(databaseInstance);
 }
@@ -15,7 +13,7 @@ class RepositorySelectorLocation {
     const result = { query, inputs };
 
     try {
-      // const result = await executeQuery(this._databaseInstance, { query, inputs });
+      // const result = await this._databaseInstance.executeQuery({ query, inputs });
       return result;
     } catch (error) {
       console.error(error);
@@ -26,7 +24,7 @@ class RepositorySelectorLocation {
     const result = { query, inputs };
 
     try {
-      // const result = await executeQuery(this._databaseInstance, { query, inputs });
+      // const result = await this._databaseInstance.executeQuery({ query, inputs });
       return result;
     } catch (error) {
       console.error(error);
@@ -37,7 +35,7 @@ class RepositorySelectorLocation {
     const result = { query, inputs };
 
     try {
-      // const result = await executeQuery(this._databaseInstance, { query, inputs });
+      // const result = await this._databaseInstance.executeQuery({ query, inputs });
       return result;
     } catch (error) {
       console.error(error);
@@ -48,7 +46,7 @@ class RepositorySelectorLocation {
     const result = { query, inputs };
 
     try {
-      // const result = await executeQuery(this._databaseInstance, { query, inputs });
+      // const result = await this._databaseInstance.executeQuery({ query, inputs });
       return result;
     } catch (error) {
       console.error(error);

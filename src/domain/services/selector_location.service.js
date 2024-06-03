@@ -1,3 +1,5 @@
+const sql = require('mssql');
+
 const { DBO_HEALTH_ID_TABLE, SERVICE_AREA_HEALTH_COLUMN } = require('../utils/constants.util');
 const { PROVINCE_HEALTH_COLUMN } = require('../utils/constants.util');
 const { DISTRICT_HEALTH_COLUMN, SUBDISTRICT_HEALTH_COLUMN } = require('../utils/constants.util');
@@ -25,7 +27,7 @@ class ServiceSelectorLocation {
       districtColumn: '',
     });
 
-    const inputAreas = { name: 'areas', type: 'Varchar', value: getFormattedServiceAreas(areas) };
+    const inputAreas = { name: 'areas', type: sql.VarChar(50), value: getFormattedServiceAreas(areas) };
     const inputs = [inputAreas];
 
     try {
@@ -48,7 +50,7 @@ class ServiceSelectorLocation {
       districtColumn: '',
     });
 
-    const inputProvinces = { name: 'provinces', type: 'Varchar', value: getFormattedProvinces(provinces) };
+    const inputProvinces = { name: 'provinces', type: sql.VarChar(50), value: getFormattedProvinces(provinces) };
     const inputs = [inputProvinces];
 
     try {
@@ -71,7 +73,7 @@ class ServiceSelectorLocation {
       districtColumn: DISTRICT_HEALTH_COLUMN,
     });
 
-    const inputDistricts = { name: 'districts', type: 'Varchar', value: getFormattedDistricts(districts) };
+    const inputDistricts = { name: 'districts', type: sql.VarChar(50), value: getFormattedDistricts(districts) };
     const inputs = [inputDistricts];
 
     try {
@@ -96,9 +98,9 @@ class ServiceSelectorLocation {
       }
     );
 
-    const inputAreas = { name: 'areas', type: 'Varchar', value: getFormattedServiceAreas(areas) };
-    const inputProvinces = { name: 'provinces', type: 'Varchar', value: getFormattedProvinces(provinces) };
-    const inputDistricts = { name: 'districts', type: 'Varchar', value: getFormattedDistricts(districts) };
+    const inputAreas = { name: 'areas', type: sql.VarChar(50), value: getFormattedServiceAreas(areas) };
+    const inputProvinces = { name: 'provinces', type: sql.VarChar(50), value: getFormattedProvinces(provinces) };
+    const inputDistricts = { name: 'districts', type: sql.VarChar(50), value: getFormattedDistricts(districts) };
 
     const inputs = [inputAreas, inputProvinces, inputDistricts];
 

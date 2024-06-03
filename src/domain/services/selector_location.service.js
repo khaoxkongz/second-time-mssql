@@ -1,7 +1,6 @@
-const { formattedStringAreasSql } = require('../utils/format_query_string.util');
-const { formattedStringProvincesSql, formattedStringDistrictsSql } = require('../utils/format_query_string.util');
-
-const { getConditionsAndArguments } = require('../utils/format_condition_string.util');
+const { DBO_HEALTH_ID_TABLE, SERVICE_AREA_HEALTH_COLUMN } = require('../utils/constants.util');
+const { PROVINCE_HEALTH_COLUMN } = require('../utils/constants.util');
+const { DISTRICT_HEALTH_COLUMN, SUBDISTRICT_HEALTH_COLUMN } = require('../utils/constants.util');
 
 function newServiceSelectorLocation(repoSelectorLocation) {
   return new ServiceSelectorLocation(repoSelectorLocation);
@@ -16,10 +15,21 @@ class ServiceSelectorLocation {
 
   async getAllProviceHealth(body) {
     const { areas } = body;
-    const formattedAreasSQL = formattedStringAreasSql(areas);
+
+    const query = sqlQueryDistinctPattern([PROVINCE_HEALTH_COLUMN], DBO_HEALTH_ID_TABLE, {
+      serviceAreas: areas,
+      serviceAreaColumn: SERVICE_AREA_HEALTH_COLUMN,
+      provinces: [],
+      provinceColumn: '',
+      districts: [],
+      districtColumn: '',
+    });
+
+    const inputAreas = { name: 'areas', type: 'Varchar', value: getFormattedServiceAreas(areas) };
+    const inputs = [inputAreas];
 
     try {
-      const result = await this._repoSelectorLocation.getAllProvinceHealth(formattedAreasSQL);
+      const result = await this._repoSelectorLocation.getAllProvinceHealth({ query, inputs });
       return result;
     } catch (error) {
       console.error(error);
@@ -28,10 +38,21 @@ class ServiceSelectorLocation {
 
   async getAllDistrictHealth(body) {
     const { provinces } = body;
-    const formattedProvincesSQL = formattedStringProvincesSql(provinces);
+
+    const query = sqlQueryDistinctPattern([DISTRICT_HEALTH_COLUMN], DBO_HEALTH_ID_TABLE, {
+      serviceAreas: [],
+      serviceAreaColumn: '',
+      provinces: provinces,
+      provinceColumn: PROVINCE_HEALTH_COLUMN,
+      districts: [],
+      districtColumn: '',
+    });
+
+    const inputProvinces = { name: 'provinces', type: 'Varchar', value: getFormattedProvinces(provinces) };
+    const inputs = [inputProvinces];
 
     try {
-      const result = await this._repoSelectorLocation.getAllDistrictHealth(formattedProvincesSQL);
+      const result = await this._repoSelectorLocation.getAllDistrictHealth({ query, inputs });
       return result;
     } catch (error) {
       console.error(error);
@@ -40,10 +61,21 @@ class ServiceSelectorLocation {
 
   async getAllSubDistrictHealth(body) {
     const { districts } = body;
-    const formattedDistrictsSQL = formattedStringDistrictsSql(districts);
+
+    const query = sqlQueryDistinctPattern([SUBDISTRICT_HEALTH_COLUMN], DBO_HEALTH_ID_TABLE, {
+      serviceAreas: [],
+      serviceAreaColumn: '',
+      provinces: [],
+      provinceColumn: '',
+      districts: districts,
+      districtColumn: DISTRICT_HEALTH_COLUMN,
+    });
+
+    const inputDistricts = { name: 'districts', type: 'Varchar', value: getFormattedDistricts(districts) };
+    const inputs = [inputDistricts];
 
     try {
-      const result = await this._repoSelectorLocation.getAllSubDistrictHealth(formattedDistrictsSQL);
+      const result = await this._repoSelectorLocation.getAllSubDistrictHealth({ query, inputs });
       return result;
     } catch (error) {
       console.error(error);
@@ -51,10 +83,27 @@ class ServiceSelectorLocation {
   }
 
   async getAllDatas({ areas, provinces, districts }) {
-    const { conditionClause, argSelectorLocation } = getConditionsAndArguments(areas, provinces, districts);
+    const query = sqlQueryDistinctPattern(
+      [PROVINCE_HEALTH_COLUMN, DISTRICT_HEALTH_COLUMN, SUBDISTRICT_HEALTH_COLUMN],
+      DBO_HEALTH_ID_TABLE,
+      {
+        serviceAreas: areas,
+        serviceAreaColumn: SERVICE_AREA_HEALTH_COLUMN,
+        provinces: provinces,
+        provinceColumn: PROVINCE_HEALTH_COLUMN,
+        districts: districts,
+        districtColumn: DISTRICT_HEALTH_COLUMN,
+      }
+    );
+
+    const inputAreas = { name: 'areas', type: 'Varchar', value: getFormattedServiceAreas(areas) };
+    const inputProvinces = { name: 'provinces', type: 'Varchar', value: getFormattedProvinces(provinces) };
+    const inputDistricts = { name: 'districts', type: 'Varchar', value: getFormattedDistricts(districts) };
+
+    const inputs = [inputAreas, inputProvinces, inputDistricts];
 
     try {
-      const result = await this._repoSelectorLocation.getAllDatas(conditionClause, argSelectorLocation);
+      const result = await this._repoSelectorLocation.getAllDatas({ query, inputs });
       return result;
     } catch (error) {
       console.error(error);
@@ -63,3 +112,46 @@ class ServiceSelectorLocation {
 }
 
 module.exports = { newServiceSelectorLocation };
+
+function getFormattedServiceAreas(serviceAreas) {
+  return `(${serviceAreas.map((area) => `N'${area}'`).join(', ')})`;
+}
+
+function getFormattedProvinces(provinces) {
+  return `(${provinces.map((province) => `N'${province}'`).join(', ')})`;
+}
+
+function getFormattedDistricts(districts) {
+  return `(${districts.map((district) => `N'${district}'`).join(', ')})`;
+}
+
+function buildConditionClause(conditions) {
+  const conditionArray = [];
+
+  if (conditions.serviceAreas && conditions.serviceAreas.length > 0) {
+    conditionArray.push(`${conditions.serviceAreaColumn} IN @areas`);
+  }
+
+  if (conditions.provinces && conditions.provinces.length > 0) {
+    conditionArray.push(`${conditions.provinceColumn} IN @provinces`);
+  }
+
+  if (conditions.districts && conditions.districts.length > 0) {
+    conditionArray.push(`${conditions.districtColumn} IN @districts`);
+  }
+
+  return conditionArray.join(' OR ');
+}
+
+function sqlQueryDistinctPattern(selectColumns, formTable, conditions) {
+  const selectClause = selectColumns.join(', ');
+  let query = `SELECT DISTINCT ${selectClause} FROM ${formTable}`;
+
+  const conditionClause = buildConditionClause(conditions);
+
+  if (conditionClause) {
+    query += ` WHERE ${conditionClause}`;
+  }
+
+  return query;
+}

@@ -15,10 +15,10 @@ class ServiceSelectorLocation {
     this._repoSelectorLocation = repoSelectorLocation;
   }
 
-  async getAllProviceHealth(body) {
-    const { areas } = body;
+  async getAllProviceHealth({ areas }) {
+    const selectColumns = getSelectColumns(areas, [], []);
 
-    const query = sqlQueryDistinctPattern([PROVINCE_HEALTH_COLUMN], DBO_HEALTH_ID_TABLE, {
+    const query = sqlQueryDistinctPattern(selectColumns, DBO_HEALTH_ID_TABLE, {
       whereServiceAreasArray: areas,
       whereServiceAreaColumn: SERVICE_AREA_HEALTH_COLUMN,
       whereProvincesArray: [],
@@ -27,8 +27,7 @@ class ServiceSelectorLocation {
       whereDistrictColumn: '',
     });
 
-    const inputAreas = { name: 'areas', type: sql.VarChar(50), value: getFormattedServiceAreas(areas) };
-    const inputs = [inputAreas];
+    const inputs = buildInputs(areas, [], []);
 
     try {
       const result = await this._repoSelectorLocation.getAllProvinceHealth({ query, inputs });
@@ -38,10 +37,10 @@ class ServiceSelectorLocation {
     }
   }
 
-  async getAllDistrictHealth(body) {
-    const { provinces } = body;
+  async getAllDistrictHealth({ provinces }) {
+    const selectColumns = getSelectColumns([], provinces, []);
 
-    const query = sqlQueryDistinctPattern([DISTRICT_HEALTH_COLUMN], DBO_HEALTH_ID_TABLE, {
+    const query = sqlQueryDistinctPattern(selectColumns, DBO_HEALTH_ID_TABLE, {
       whereServiceAreasArray: [],
       whereServiceAreaColumn: '',
       whereProvincesArray: provinces,
@@ -50,8 +49,7 @@ class ServiceSelectorLocation {
       whereDistrictColumn: '',
     });
 
-    const inputProvinces = { name: 'provinces', type: sql.VarChar(50), value: getFormattedProvinces(provinces) };
-    const inputs = [inputProvinces];
+    const inputs = buildInputs([], provinces, []);
 
     try {
       const result = await this._repoSelectorLocation.getAllDistrictHealth({ query, inputs });
@@ -61,10 +59,10 @@ class ServiceSelectorLocation {
     }
   }
 
-  async getAllSubDistrictHealth(body) {
-    const { districts } = body;
+  async getAllSubDistrictHealth({ districts }) {
+    const selectColumns = getSelectColumns([], [], districts);
 
-    const query = sqlQueryDistinctPattern([SUBDISTRICT_HEALTH_COLUMN], DBO_HEALTH_ID_TABLE, {
+    const query = sqlQueryDistinctPattern(selectColumns, DBO_HEALTH_ID_TABLE, {
       whereServiceAreasArray: [],
       whereServiceAreaColumn: '',
       whereProvincesArray: [],
@@ -73,8 +71,7 @@ class ServiceSelectorLocation {
       whereDistrictColumn: DISTRICT_HEALTH_COLUMN,
     });
 
-    const inputDistricts = { name: 'districts', type: sql.VarChar(50), value: getFormattedDistricts(districts) };
-    const inputs = [inputDistricts];
+    const inputs = buildInputs([], [], districts);
 
     try {
       const result = await this._repoSelectorLocation.getAllSubDistrictHealth({ query, inputs });
@@ -85,24 +82,18 @@ class ServiceSelectorLocation {
   }
 
   async getAllDatas({ areas, provinces, districts }) {
-    const query = sqlQueryDistinctPattern(
-      [PROVINCE_HEALTH_COLUMN, DISTRICT_HEALTH_COLUMN, SUBDISTRICT_HEALTH_COLUMN],
-      DBO_HEALTH_ID_TABLE,
-      {
-        whereServiceAreasArray: areas,
-        whereServiceAreaColumn: SERVICE_AREA_HEALTH_COLUMN,
-        whereProvincesArray: provinces,
-        whereProvinceColumn: PROVINCE_HEALTH_COLUMN,
-        whereDistrictsArray: districts,
-        whereDistrictColumn: DISTRICT_HEALTH_COLUMN,
-      }
-    );
+    const selectColumns = getSelectColumns(areas, provinces, districts);
 
-    const inputAreas = { name: 'areas', type: sql.VarChar(50), value: getFormattedServiceAreas(areas) };
-    const inputProvinces = { name: 'provinces', type: sql.VarChar(50), value: getFormattedProvinces(provinces) };
-    const inputDistricts = { name: 'districts', type: sql.VarChar(50), value: getFormattedDistricts(districts) };
+    const query = sqlQueryDistinctPattern(selectColumns, DBO_HEALTH_ID_TABLE, {
+      whereServiceAreasArray: areas,
+      whereServiceAreaColumn: SERVICE_AREA_HEALTH_COLUMN,
+      whereProvincesArray: provinces,
+      whereProvinceColumn: PROVINCE_HEALTH_COLUMN,
+      whereDistrictsArray: districts,
+      whereDistrictColumn: DISTRICT_HEALTH_COLUMN,
+    });
 
-    const inputs = [inputAreas, inputProvinces, inputDistricts];
+    const inputs = buildInputs(areas, provinces, districts);
 
     try {
       const result = await this._repoSelectorLocation.getAllDatas({ query, inputs });
@@ -115,16 +106,22 @@ class ServiceSelectorLocation {
 
 module.exports = { newServiceSelectorLocation };
 
-function getFormattedServiceAreas(serviceAreas) {
-  return `(${serviceAreas.map((area) => `N'${area}'`).join(', ')})`;
-}
+function getSelectColumns(areas, provinces, districts) {
+  const selectColumns = [];
 
-function getFormattedProvinces(provinces) {
-  return `(${provinces.map((province) => `N'${province}'`).join(', ')})`;
-}
+  if (areas && areas.length > 0) {
+    selectColumns.push(PROVINCE_HEALTH_COLUMN);
+  }
 
-function getFormattedDistricts(districts) {
-  return `(${districts.map((district) => `N'${district}'`).join(', ')})`;
+  if (provinces && provinces.length > 0) {
+    selectColumns.push(DISTRICT_HEALTH_COLUMN);
+  }
+
+  if (districts && districts.length > 0) {
+    selectColumns.push(SUBDISTRICT_HEALTH_COLUMN);
+  }
+
+  return selectColumns;
 }
 
 function buildConditionClause(conditions) {
@@ -159,4 +156,37 @@ function sqlQueryDistinctPattern(selectColumns, formTable, conditions) {
   }
 
   return query;
+}
+
+function buildInputs(areas, provinces, districts) {
+  const inputs = [];
+
+  if (areas && areas.length > 0) {
+    const inputAreas = { name: 'areas', type: sql.VarChar(50), value: getFormattedServiceAreas(areas) };
+    inputs.push(inputAreas);
+  }
+
+  if (provinces && provinces.length > 0) {
+    const inputProvinces = { name: 'provinces', type: sql.VarChar(50), value: getFormattedProvinces(provinces) };
+    inputs.push(inputProvinces);
+  }
+
+  if (districts && districts.length > 0) {
+    const inputDistricts = { name: 'districts', type: sql.VarChar(50), value: getFormattedDistricts(districts) };
+    inputs.push(inputDistricts);
+  }
+
+  return inputs;
+}
+
+function getFormattedServiceAreas(serviceAreas) {
+  return `(${serviceAreas.map((area) => `N'${area}'`).join(', ')})`;
+}
+
+function getFormattedProvinces(provinces) {
+  return `(${provinces.map((province) => `N'${province}'`).join(', ')})`;
+}
+
+function getFormattedDistricts(districts) {
+  return `(${districts.map((district) => `N'${district}'`).join(', ')})`;
 }

@@ -19,12 +19,12 @@ class ServiceSelectorLocation {
     const { areas } = body;
 
     const query = sqlQueryDistinctPattern([PROVINCE_HEALTH_COLUMN], DBO_HEALTH_ID_TABLE, {
-      serviceAreas: areas,
-      serviceAreaColumn: SERVICE_AREA_HEALTH_COLUMN,
-      provinces: [],
-      provinceColumn: '',
-      districts: [],
-      districtColumn: '',
+      whereServiceAreasArray: areas,
+      whereServiceAreaColumn: SERVICE_AREA_HEALTH_COLUMN,
+      whereProvincesArray: [],
+      whereProvinceColumn: '',
+      whereDistrictsArray: [],
+      whereDistrictColumn: '',
     });
 
     const inputAreas = { name: 'areas', type: sql.VarChar(50), value: getFormattedServiceAreas(areas) };
@@ -42,12 +42,12 @@ class ServiceSelectorLocation {
     const { provinces } = body;
 
     const query = sqlQueryDistinctPattern([DISTRICT_HEALTH_COLUMN], DBO_HEALTH_ID_TABLE, {
-      serviceAreas: [],
-      serviceAreaColumn: '',
-      provinces: provinces,
-      provinceColumn: PROVINCE_HEALTH_COLUMN,
-      districts: [],
-      districtColumn: '',
+      whereServiceAreasArray: [],
+      whereServiceAreaColumn: '',
+      whereProvincesArray: provinces,
+      whereProvinceColumn: PROVINCE_HEALTH_COLUMN,
+      whereDistrictsArray: [],
+      whereDistrictColumn: '',
     });
 
     const inputProvinces = { name: 'provinces', type: sql.VarChar(50), value: getFormattedProvinces(provinces) };
@@ -65,12 +65,12 @@ class ServiceSelectorLocation {
     const { districts } = body;
 
     const query = sqlQueryDistinctPattern([SUBDISTRICT_HEALTH_COLUMN], DBO_HEALTH_ID_TABLE, {
-      serviceAreas: [],
-      serviceAreaColumn: '',
-      provinces: [],
-      provinceColumn: '',
-      districts: districts,
-      districtColumn: DISTRICT_HEALTH_COLUMN,
+      whereServiceAreasArray: [],
+      whereServiceAreaColumn: '',
+      whereProvincesArray: [],
+      whereProvinceColumn: '',
+      whereDistrictsArray: districts,
+      whereDistrictColumn: DISTRICT_HEALTH_COLUMN,
     });
 
     const inputDistricts = { name: 'districts', type: sql.VarChar(50), value: getFormattedDistricts(districts) };
@@ -89,12 +89,12 @@ class ServiceSelectorLocation {
       [PROVINCE_HEALTH_COLUMN, DISTRICT_HEALTH_COLUMN, SUBDISTRICT_HEALTH_COLUMN],
       DBO_HEALTH_ID_TABLE,
       {
-        serviceAreas: areas,
-        serviceAreaColumn: SERVICE_AREA_HEALTH_COLUMN,
-        provinces: provinces,
-        provinceColumn: PROVINCE_HEALTH_COLUMN,
-        districts: districts,
-        districtColumn: DISTRICT_HEALTH_COLUMN,
+        whereServiceAreasArray: areas,
+        whereServiceAreaColumn: SERVICE_AREA_HEALTH_COLUMN,
+        whereProvincesArray: provinces,
+        whereProvinceColumn: PROVINCE_HEALTH_COLUMN,
+        whereDistrictsArray: districts,
+        whereDistrictColumn: DISTRICT_HEALTH_COLUMN,
       }
     );
 
@@ -130,16 +130,19 @@ function getFormattedDistricts(districts) {
 function buildConditionClause(conditions) {
   const conditionArray = [];
 
-  if (conditions.serviceAreas && conditions.serviceAreas.length > 0) {
-    conditionArray.push(`${conditions.serviceAreaColumn} IN @areas`);
+  const { whereServiceAreasArray, whereProvincesArray, whereDistrictsArray } = conditions;
+  const { whereServiceAreaColumn, whereProvinceColumn, whereDistrictColumn } = conditions;
+
+  if (whereServiceAreasArray && whereServiceAreasArray.length > 0) {
+    conditionArray.push(`${whereServiceAreaColumn} IN @areas`);
   }
 
-  if (conditions.provinces && conditions.provinces.length > 0) {
-    conditionArray.push(`${conditions.provinceColumn} IN @provinces`);
+  if (whereProvincesArray && whereProvincesArray.length > 0) {
+    conditionArray.push(`${whereProvinceColumn} IN @provinces`);
   }
 
-  if (conditions.districts && conditions.districts.length > 0) {
-    conditionArray.push(`${conditions.districtColumn} IN @districts`);
+  if (whereDistrictsArray && whereDistrictsArray.length > 0) {
+    conditionArray.push(`${whereDistrictColumn} IN @districts`);
   }
 
   return conditionArray.join(' OR ');

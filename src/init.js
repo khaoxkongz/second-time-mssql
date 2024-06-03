@@ -3,7 +3,7 @@ const { newServiceSelectorLocation } = require('./domain/services/selector_locat
 const { newControllerSelectorLocation } = require('./api/controllers/selector_location.controller');
 
 function init(server, arg) {
-  const repoSelectorLocation = newRepositorySelectorLocation(arg.databaseInstance);
+  const repoSelectorLocation = newRepositorySelectorLocation(arg.databaseInstance.getPoolConnection());
   const serviceSelectorLocation = newServiceSelectorLocation(repoSelectorLocation);
   const ctrlSelectorLocation = newControllerSelectorLocation(serviceSelectorLocation);
 

@@ -21,8 +21,8 @@ class DatabaseContext {
         console.log(`Already connected to database ${HEALTH_ID_DATABASE}`);
         return;
       }
-      const _poolInstance = new sql.ConnectionPool(this._config);
-      this._poolConnection = await _poolInstance.connect();
+      this._poolConnection = new sql.ConnectionPool(this._config);
+      await this._poolConnection.connect();
       this._connected = true;
       console.log(`[TASK_1] Connected to database ${HEALTH_ID_DATABASE}`);
     } catch (err) {
@@ -42,6 +42,10 @@ class DatabaseContext {
     } catch (err) {
       console.log('Database disconnection failed!', err);
     }
+  }
+
+  getPoolConnection() {
+    return this._poolConnection;
   }
 }
 

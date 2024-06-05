@@ -51,7 +51,7 @@ class DatabaseContext {
         inputs.forEach((input) => request.input(input.name, input.type, input.value));
       }
       const result = await request.query(query);
-      return result.recordsets;
+      return result.recordset;
     } catch (error) {
       console.log('Error executing query: ', error);
     }

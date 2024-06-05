@@ -9,47 +9,17 @@ class RepositorySelectorLocation {
     this._databaseInstance = databaseInstance;
   }
 
-  async getAllProvinceHealth({ query, inputs }) {
-    const result = { query, inputs };
-
+  async getAllDatas({ query, queryDistinct, countQuery }) {
     try {
-      // const result = await this._databaseInstance.executeQuery({ query, inputs });
-      return result;
+      const [queryResult, queryResultDistinct, totalCount] = await Promise.all([
+        this._databaseInstance.executeQuery({ query, inputs: [] }),
+        this._databaseInstance.executeQuery({ query: queryDistinct, inputs: [] }),
+        this._databaseInstance.executeQuery({ query: countQuery, inputs: [] }),
+      ]);
+
+      return { queryResult, queryResultDistinct, totalCount: totalCount[0].totalCount };
     } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async getAllDistrictHealth({ query, inputs }) {
-    const result = { query, inputs };
-
-    try {
-      // const result = await this._databaseInstance.executeQuery({ query, inputs });
-      return result;
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async getAllSubDistrictHealth({ query, inputs }) {
-    const result = { query, inputs };
-
-    try {
-      // const result = await this._databaseInstance.executeQuery({ query, inputs });
-      return result;
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async getAllDatas({ query, inputs }) {
-    const result = { query, inputs };
-
-    try {
-      // const result = await this._databaseInstance.executeQuery({ query, inputs });
-      return result;
-    } catch (error) {
-      console.error(error);
+      return Promise.reject(error);
     }
   }
 }

@@ -1,5 +1,5 @@
 const Status = {
-  Ok: 'ok',
+  Ok: 'success',
   Err: 'error',
 };
 
@@ -18,29 +18,37 @@ const Bodies = {
   NotImplemented: 'api not yet implemented',
   MissingField: 'missing field',
   MissingParam: 'missing param',
+  InvalidField: 'invalid field',
 };
 
 class JSONResponse {
   _code = null;
   _body = null;
   _status = null;
+  _message = null;
 
   constructor(code, body) {
     this._code = code;
     this._body = body;
 
     if (code < 400) {
-      this._status = Status.Ok;
+      this._status = true;
+      this._message = Status.Ok;
       return;
     }
 
-    this._status = Status.Err;
+    this._status = false;
+    this._message = Status.Err;
   }
 
   async marshal(res, fieldName) {
     return res
       .status(this._code)
-      .json(Object.fromEntries(new Map().set('status', this._status).set(fieldName, this._body)));
+      .json(
+        Object.fromEntries(
+          new Map().set('status', this._status).set('message', this._message).set(fieldName, this._body)
+        )
+      );
   }
 }
 
@@ -56,6 +64,11 @@ async function MissingField(res, field) {
 
 async function MissingParam(res, param) {
   const body = `${Bodies.MissingParam}: '${param}'`;
+  return new JSONResponse(Codes.BadRequest, body).marshal(res, 'error');
+}
+
+async function BadRequest(res, param) {
+  const body = `${Bodies.InvalidField}: '${param}'`;
   return new JSONResponse(Codes.BadRequest, body).marshal(res, 'error');
 }
 
@@ -76,11 +89,11 @@ async function Deleted(res, body) {
 }
 
 async function NotFound(res, body) {
-  return new JSONResponse(Codes.NotFound, body).marshal(res, 'message');
+  return new JSONResponse(Codes.NotFound, body).marshal(res, 'error');
 }
 
 async function InternalServerError(res, body) {
-  return new JSONResponse(Codes.InternalServerError, body).marshal(res, 'message');
+  return new JSONResponse(Codes.InternalServerError, body).marshal(res, 'error');
 }
 
 async function Unauthorized(res, body) {
@@ -91,6 +104,7 @@ module.exports = {
   NotImplemented,
   MissingField,
   MissingParam,
+  BadRequest,
   Ok,
   Created,
   Updated,
